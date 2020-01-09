@@ -146,9 +146,43 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  venue = Venue.query.get(venue_id)
+  venue = db.session.query(Venue).get(venue_id)
 
+  show_list=db.session.query(Artist, Show.start_time).join(Show).filter(Show.venue_id==venue_id)
+  past_shows=[]
+  upcoming_shows=[]
 
+  for start_time, artist in show_list:
+    add_show={
+      "artist_id": show.artist_id,
+      "artist_name": artist.name,
+      "artist_image_link": artist.image_link,
+      "start_time": str(start_time)
+    }
+
+    if start_time<datetime.now():
+      past_shows.append(add_show)
+    else:
+      upcoming_shows.append(add_show)
+
+  data = {
+    "id": venue.id,
+    "name": venue.name,
+    "city": venue.city,
+    "state": venue.state,
+    "phone": venue.phone,
+    "address": venue.address,
+    "genres": venue.genres,
+    "image_link": venue.image_link,
+    "website": venue.website,
+    "facebook_link": venue.facebook_link,
+    "seeking_talent": venue.seeking_talent,
+    "seeking_description": venue.seeking_description,
+    "past_shows": past_shows,
+    "upcoming_shows": upcoming_shows,
+    "past_shows_count": len(past_shows),
+    "upcoming_shows_count": len(upcoming_shows),
+  }
 
   return render_template('pages/show_venue.html', venue=data)
 
