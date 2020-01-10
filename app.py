@@ -127,20 +127,31 @@ def venues():
       })
   return render_template('pages/venues.html', areas=data)
 
+#  Venue Search
+
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+  search_term = request.form.get('search_term', '')
+  venue_search=db.session.query(Venue).filter(Venue.name.ilike('%'+search_term+'%')).all()
+  data=[]
+
+  for venue in venue_search:
+    data.append({
+      "id": venue.id,
+      "name": venue.name,
+    })
+
   response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
+    "data": venue_search,
+    "count": len(venue_search)
   }
+
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+
+#  Venue Page
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -154,7 +165,7 @@ def show_venue(venue_id):
 
   for start_time, artist in show_list:
     add_show={
-      "artist_id": show.artist_id,
+      "artist_id": artist_id,
       "artist_name": artist.name,
       "artist_image_link": artist.image_link,
       "start_time": str(start_time)
@@ -186,8 +197,7 @@ def show_venue(venue_id):
 
   return render_template('pages/show_venue.html', venue=data)
 
-#  Create Venue
-#  ----------------------------------------------------------------
+#  Venue Create
 
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
@@ -230,14 +240,27 @@ def create_venue_submission():
     db.session.close()
   return render_template('pages/home.html')
 
+#  Venue Delete
+
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+  try:
+    venue=db.session.query(Venue).get(venue_id)
+    db.session.delete(venue)
+    db.session.commit()
+    flash(f'Venue {venue_id} was deleted.')
+  except:
+    db.session.rollback()
+    print(sys.exc_info())
+    flash(f'Error. Venue {venue_id} could not be deleted.')
+  finally:
+    db.session.close()
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+  return render_template('venues')
 
 #  Artists
 #  ----------------------------------------------------------------
