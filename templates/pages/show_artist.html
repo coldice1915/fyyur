@@ -6,6 +6,10 @@
 		<h1 class="monospace">
 			{{ artist.name }}
 		</h1>
+		<div>
+			<a href="/artists/{{ artist.id }}/edit"><button class="btn btn-default btn-sm">Edit</button></a>
+			<a href="/"><button class="btn btn-default btn-sm" id="artist-delete" data-id="{{ artist.id }}">Delete</button></a>
+		</div>
 		<p class="subtitle">
 			ID: {{ artist.id }}
 		</p>
@@ -71,6 +75,14 @@
 		{% endfor %}
 	</div>
 </section>
-
+<script>
+	const deleteBtn = document.getElementById('artist-delete');
+  	deleteBtn.onclick = function(e) {
+    	const artistId = e.target.dataset['id'];
+    	fetch('/artists/' + artistId, {
+      		method: 'DELETE'
+    	})
+  	}
+</script>
 {% endblock %}
 
