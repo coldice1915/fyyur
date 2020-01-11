@@ -305,13 +305,18 @@ def search_artists():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
+  search_term=request.form.get('search_term', '')
+  artist_search=db.session.query(Artist).filter(Artist.name.ilike('%'+search_term+'%')).all()
+  data=[]
+
+  for artist in artist_search:
+    data.append({
+      "id": artist.id,
+      "name": artist.name
+    })
   response={
-    "count": 1,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
+    "data": artist_search,
+    "count": len(artist_search)
   }
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -396,7 +401,7 @@ def create_artist_submission():
     error = True
     db.session.rollback()
     print(sys.exc_info())
-    flash('Error!. Artist ' + request.form['name'] + ' could not be listed.')
+    flash('Error! Artist ' + request.form['name'] + ' could not be listed.')
   finally:
     db.session.close()
   return render_template('pages/home.html')
