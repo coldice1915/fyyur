@@ -9,7 +9,8 @@ Built data models to power the API endpoints for the Fyyur site by connecting to
 ### Overview
 
 Defined the views and controllers, built models and model interactions to be able to store retrieve, and updated data from a database.
-You app can:
+
+### Features
 
 * create new venues, artists, and new shows.
 * search for venues and artists.
@@ -18,8 +19,6 @@ You app can:
 Fyyur is the next new platform that artists and musical venues can use to find each other, and discover new music shows!
 
 ### Tech Stack
-
-Includes:
 
 * **SQLAlchemy ORM** to be ORM library of choice
 * **PostgreSQL** as database of choice
